@@ -185,7 +185,7 @@ class QuestionData(dict):
                 d['~rank'] = int(d.pop('rank'))
                 d['_question_id'] = d.pop('question_id')
                 d['~status'] = {
-                    '回答受付中': 0,
+                    '解決受付中': 0,
                     '投票受付中': 1,
                     '解決済み': 2,
                 }[d.pop('status')]

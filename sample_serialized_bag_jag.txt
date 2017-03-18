@@ -1,0 +1,3 @@
+{">": 1, "小": 1, "大": 1, "ベストアンサ": 1, "質問": 1, "q90123456789": 1, "スニペット": 1, "タイトル": 1, "本文": 1, "カテゴリ": 1}
+{"~days_passed": 1, "title": 1, "~answer_count": 1, "~view_count": 1, "~status": 1, "question_body": 2, "_question_id": 1, "category": 5, "~rank": 1, "best_answer_body": 2, "snippets": 1}
+{"~days_passed": {"29": 1}, "title": {"タイトル": 1}, "~rank": {"123": 1}, "~view_count": {"42": 1}, "~status": {"2": 1}, "question_body": {"質問": 1, "本文": 1}, "best_answer_body": {"ベストアンサ": 1, "本文": 1}, "category": {">": 1, "小": 1, "大": 1, "カテゴリ": 2}, "~answer_count": {"1": 1}, "_question_id": {"q90123456789": 1}, "snippets": {"スニペット": 1}}
