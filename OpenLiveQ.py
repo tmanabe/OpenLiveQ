@@ -24,24 +24,26 @@ class ClickThrough(dict):
         self[query_id] = {}
         return self[query_id]
 
-    def read(self, path):
+    def read(self, path, expected_count=440163):
+        from sys import stderr
+        head = 'ClickThrough::read'
         count = 0
         with open(path, 'r', encoding='utf-8') as file:
             for line in file:
                 count += 1
-                if count % 20000 == 0:
-                    print(count)
+                if count % 40000 == 0:
+                    stderr.write('%s is at line %i\n' % (head, count))
                 d = {}
                 l = line.rstrip().split(ClickThrough.separator)
                 try:
                     for i, key in enumerate(ClickThrough.keys):
                         d[key] = l[i]
                 except IndexError:
-                    print('IndexError at %i' % count)
+                    stderr.write('%s: IndexError at line %i\n' % (head, count))
                     continue
-                # print(d)
                 self[d['query_id']][d['question_id']] = d
-        assert count == 440163
+        if expected_count is not None:
+            assert count == expected_count
         return self
 
 
@@ -86,24 +88,26 @@ class QuestionData(dict):
         self[query_id] = []
         return self[query_id]
 
-    def read(self, path):
+    def read(self, path, expected_count=1967274):
+        from sys import stderr
+        head = 'QuestionData::read'
         count = 0
         with open(path, 'r', encoding='utf-8') as file:
             for line in file:
                 count += 1
-                if count % 20000 == 0:
-                    print(count)
+                if count % 200000 == 0:
+                    stderr.write('%s is at line %i\n' % (head, count))
                 d = {}
-                l = line.rstrip().split(QuestionData.separator)
+                l = line.rstrip('\n').split(QuestionData.separator)
                 try:
                     for i, key in enumerate(QuestionData.keys):
                         d[key] = l[i]
                 except IndexError:
-                    # print('IndexError at %i' % count)
+                    stderr.write('%s: IndexError at line %i\n' % (head, count))
                     continue
-                # print(d)
                 self[d['query_id']].append(d)
-        assert count == 1967274
+        if expected_count is not None:
+            assert count == expected_count
         return self
 
 
