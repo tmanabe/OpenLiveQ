@@ -2,6 +2,23 @@
 # coding: utf-8
 
 from datetime import date
+import os
+
+
+def p(tpl):
+    from BM25F.exp import bag_dict
+    from BM25F.exp import bag_jag
+    import BM25F.ja
+    sf = BM25F.ja.StemFilter()
+    pf = BM25F.ja.PosFilter()
+    tokenizer = BM25F.ja.Tokenizer(sf, pf)
+    bj = bag_jag()
+    query_id, dicts, dir_path = tpl
+    for d in dicts:
+        bd = bag_dict()
+        bd.read(tokenizer, d)
+        bj.append(bd)
+    bj.write(os.path.join(dir_path, query_id + '.txt'))
 
 
 class ClickThrough(dict):
@@ -172,7 +189,8 @@ class QuestionData(dict):
                     '投票受付中': 1,
                     '解決済み': 2,
                 }[d.pop('status')]
-                d['~days_passed'] = (epoch - parse_date(d.pop('timestamp'))).days
+                days_passed = (epoch - parse_date(d.pop('timestamp'))).days
+                d['~days_passed'] = days_passed
                 d['~answer_count'] = int(d.pop('answer_count'))
                 d['~view_count'] = int(d.pop('view_count'))
         return self
@@ -198,6 +216,13 @@ class QuestionData(dict):
         if expected_count is not None:
             assert count == expected_count
         return self
+
+    def write_bag_jags(self, dir_path):
+        import multiprocessing as mp
+        dir_path = dir_path.rstrip(os.path.sep)
+        self.format()
+        buffer = [pair + (dir_path,) for pair in self.items()]
+        mp.Pool(mp.cpu_count() - 1).map(p, buffer)
 
 
 class Run(dict):

@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+from BM25F.exp import bag_jag
+import json
 import OpenLiveQ
+import tempfile
 import unittest
 
 
@@ -64,8 +67,11 @@ class TestOpenLiveQ(unittest.TestCase):
 
     def test_query(self):
         source = OpenLiveQ.Query().read('./sample_query.tsv')
-        source.write('./tmp_query.tsv')
-        destination = OpenLiveQ.Query().read('./tmp_query.tsv')
+        d = tempfile.TemporaryDirectory()
+        p = '%s/tmp_query.tsv' % d.name
+        source.write(p)
+        destination = OpenLiveQ.Query().read(p)
+        d.cleanup()
         self.assertEqual(source, destination)
 
     def test_questiondata(self):
@@ -111,10 +117,26 @@ class TestOpenLiveQ(unittest.TestCase):
             ],
         })
 
+    def test_questiondata_write(self):
+        source = OpenLiveQ.QuestionData()
+        source.read('./sample_questiondata.tsv', 1)
+        d = tempfile.TemporaryDirectory()
+        p = '%s/2345.txt' % d.name
+        source.write_bag_jags(d.name)
+        expect = bag_jag().read('./sample_serialized_bag_jag.txt')
+        actual = bag_jag().read(p)
+        d.cleanup()
+        self.assertEqual(expect.body, actual.body)
+        self.assertEqual(expect.df, actual.df)
+        self.assertEqual(expect.total_len, actual.total_len)
+
     def test_run(self):
         source = OpenLiveQ.Run().read('./sample_run.tsv')
-        source.write('./tmp_run.tsv')
-        destination = OpenLiveQ.Run().read('./tmp_run.tsv')
+        d = tempfile.TemporaryDirectory()
+        p = '%s/tmp_run.tsv' % d.name
+        source.write(p)
+        destination = OpenLiveQ.Run().read(p)
+        d.cleanup()
         self.assertEqual(source, destination)
 
 
