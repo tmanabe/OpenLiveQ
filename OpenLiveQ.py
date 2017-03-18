@@ -87,7 +87,7 @@ class ClickThrough(dict):
                 except IndexError:
                     stderr.write('%s: IndexError at line %i\n' % (head, count))
                     continue
-                self[d['query_id']][d['question_id']] = d
+                self[d['query_id'].lstrip('OLQ-0')][d['question_id']] = d
         if expected_count is not None:
             assert count == expected_count
         return self
@@ -122,7 +122,7 @@ class Query(dict):
             for line in file:
                 query_id, query = line.split(Query.separator, 1)
                 query = query.rstrip()
-                self[query_id] = query
+                self[query_id.lstrip('OLQ-0')] = query
         return self
 
     def write(self, path):
@@ -171,7 +171,7 @@ class QuestionData(dict):
                 except IndexError:
                     stderr.write('%s: IndexError at line %i\n' % (head, count))
                     continue
-                self[d['query_id']].append(d)
+                self[d['query_id'].lstrip('OLQ-0')].append(d)
         if expected_count is not None:
             assert count == expected_count
         return self
@@ -190,7 +190,7 @@ class Run(dict):
             for line in file:
                 query_id, document_id = line.split(Run.separator, 1)
                 document_id = document_id.rstrip()
-                self[query_id].append(document_id)
+                self[query_id.lstrip('OLQ-0')].append(document_id)
         return self
 
     def write(self, path):

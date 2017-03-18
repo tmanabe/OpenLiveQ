@@ -11,7 +11,7 @@ class TestOpenLiveQ(unittest.TestCase):
         source = OpenLiveQ.ClickThrough()
         source.read('./sample_clickthrough.tsv', 1)
         self.assertEqual(source, {
-            'OLQ-2345': {
+            '2345': {
                 'q90123456789': dict(zip(OpenLiveQ.ClickThrough.keys, [
                     'OLQ-2345',
                     'q90123456789',
@@ -72,7 +72,7 @@ class TestOpenLiveQ(unittest.TestCase):
         source = OpenLiveQ.QuestionData()
         source.read('./sample_questiondata.tsv', 1)
         self.assertEqual(source, {
-            'OLQ-2345': [
+            '2345': [
                 dict(zip(OpenLiveQ.QuestionData.keys, [
                     'OLQ-2345',
                     '123',
