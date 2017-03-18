@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 
+from datetime import date
+
 
 class ClickThrough(dict):
     keys = [
@@ -153,6 +155,27 @@ class QuestionData(dict):
     def __missing__(self, query_id):
         self[query_id] = []
         return self[query_id]
+
+    def format(self):
+        def parse_date(s):
+            s = s.split(' ')[0]
+            l = s.split('/', 2)
+            return date(*[int(t) for t in l])
+        epoch = parse_date('2016/12/12 00:00:00')
+        for query_id, dicts in self.items():
+            for d in dicts:
+                d.pop('query_id')
+                d['~rank'] = int(d.pop('rank'))
+                d['_question_id'] = d.pop('question_id')
+                d['~status'] = {
+                    '回答受付中': 0,
+                    '投票受付中': 1,
+                    '解決済み': 2,
+                }[d.pop('status')]
+                d['~days_passed'] = (epoch - parse_date(d.pop('timestamp'))).days
+                d['~answer_count'] = int(d.pop('answer_count'))
+                d['~view_count'] = int(d.pop('view_count'))
+        return self
 
     def read(self, path, expected_count=1967274):
         from sys import stderr

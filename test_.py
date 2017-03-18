@@ -90,6 +90,27 @@ class TestOpenLiveQ(unittest.TestCase):
             ],
         })
 
+    def test_questiondata_format(self):
+        source = OpenLiveQ.QuestionData()
+        source.read('./sample_questiondata.tsv', 1)
+        self.assertEqual(source.format(), {
+            '2345': [
+                {
+                    '~rank': 123,
+                    '_question_id': 'q90123456789',
+                    'title': 'タイトル',
+                    'snippets': 'スニペット',
+                    '~status': 2,
+                    '~days_passed': 29,
+                    '~answer_count': 1,
+                    '~view_count': 42,
+                    'category': '大カテゴリ > 小カテゴリ',
+                    'question_body': '質問本文',
+                    'best_answer_body': 'ベストアンサー本文',
+                },
+            ],
+        })
+
     def test_run(self):
         source = OpenLiveQ.Run().read('./sample_run.tsv')
         source.write('./tmp_run.tsv')
