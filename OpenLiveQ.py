@@ -18,11 +18,57 @@ class ClickThrough(dict):
         '50s',
         '60+',
     ]
+    key2iid = {
+        'male': '1',
+        'female': '2',
+        '10-': '3',
+        '10s': '4',
+        '20s': '5',
+        '30s': '6',
+        '40s': '7',
+        '50s': '8',
+        '60+': '9',
+    }
     separator = '\t'
 
     def __missing__(self, query_id):
         self[query_id] = {}
         return self[query_id]
+
+    def to_pagebias(self, count_floor=100, base=10):
+        rank2count = [0] * 1001
+        for qid, remainder in self.items():
+            for did, d in remainder.items():
+                rank = int(d['mode_rank'])
+                rank2count[rank] += 1
+        result = []
+        rank = 1
+        while rank < 1001 and count_floor <= rank2count[rank]:
+            result.append(rank2count[rank])
+            rank += base
+        if 0 < len(result) and 0 < result[0]:
+            baseline = result[0]
+            result = [raw / baseline for raw in result]
+        return result
+
+    def to_rankbias(self, count_floor=1000):
+        rank2ctrs = {}
+        for qid, remainder in self.items():
+            for did, d in remainder.items():
+                rank = int(d['mode_rank'])
+                if rank not in rank2ctrs:
+                    rank2ctrs[rank] = []
+                rank2ctrs[rank].append(float(d['ctr']))
+        result = []
+        rank = 1
+        while rank in rank2ctrs and count_floor <= len(rank2ctrs[rank]):
+            ctrs = rank2ctrs[rank]
+            result.append(sum(ctrs) / len(ctrs))
+            rank += 1
+        if 0 < len(result) and 0 < result[0]:
+            baseline = result[0]
+            result = [raw / baseline for raw in result]
+        return result
 
     def read(self, path, expected_count=440163):
         from sys import stderr
@@ -45,6 +91,26 @@ class ClickThrough(dict):
         if expected_count is not None:
             assert count == expected_count
         return self
+
+    def to_relevance(self):
+        from TREC import Relevance
+        result = Relevance()
+        for qid, remainder in self.items():
+            qid = str(int(qid.split('-')[-1]))
+            for did, d in remainder.items():
+                for key in ClickThrough.keys[4:]:
+                    v = float(d[key]) * float(d['ctr'])
+                    if 0 < v:
+                        if v < 0.25:
+                            v = 1
+                        elif v < 0.5:
+                            v = 2
+                        elif v < 0.75:
+                            v = 3
+                        else:
+                            v = 4
+                        result[qid][ClickThrough.key2iid[key]][did] = v
+        return result
 
 
 class Query(dict):

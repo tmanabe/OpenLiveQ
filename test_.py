@@ -16,19 +16,51 @@ class TestOpenLiveQ(unittest.TestCase):
                     'OLQ-2345',
                     'q90123456789',
                     '123',
-                    '0.050',
-                    '0.500',
-                    '0.500',
-                    '0.100',
+                    '1.000',
                     '0.200',
-                    '0.300',
+                    '0.800',
                     '0.400',
+                    '0.600',
+                    '0.000',
+                    '0.000',
                     '0.000',
                     '0.000',
                     '0.000',
                 ])),
             },
         })
+
+    def test_clickthrough_to_pagebias(self):
+        source = OpenLiveQ.ClickThrough()
+        source.read('./sample_clickthrough_long.tsv', 10)
+        expect = [1.0, 0.5]
+        actual = source.to_pagebias(count_floor=2, base=2)
+        for e, a in zip(expect, actual):
+            self.assertTrue(-0.000001 < e - a < 0.000001)
+
+    def test_clickthrough_to_rankbias(self):
+        source = OpenLiveQ.ClickThrough()
+        source.read('./sample_clickthrough_long.tsv', 10)
+        expect = [1.0, 0.933333, 0.8]
+        actual = source.to_rankbias(count_floor=2)
+        for e, a in zip(expect, actual):
+            self.assertTrue(-0.000001 < e - a < 0.000001)
+
+    def test_clickthrough_to_relevance(self):
+        source = OpenLiveQ.ClickThrough()
+        source.read('./sample_clickthrough.tsv', 1)
+        qid, did = '2345', 'q90123456789'
+        expect = {
+            qid: {
+                '1': {did: 1},
+                '2': {did: 4},
+                '3': {did: 2},
+                '4': {did: 3},
+            },
+        }
+        actual = source.to_relevance()
+        print(actual)
+        self.assertEqual(expect, actual)
 
     def test_query(self):
         source = OpenLiveQ.Query().read('./sample_query.tsv')
