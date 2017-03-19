@@ -72,6 +72,14 @@ class TestOpenLiveQ(unittest.TestCase):
         d.cleanup()
         self.assertEqual(source, destination)
 
+    def test_query_tokenize(self):
+        source = OpenLiveQ.Query().read('./sample_query.tsv')
+        self.assertEqual(source.tokenize(), {
+            'OLQ-0001': {'野球': 1},
+            'OLQ-0002': {'広島': 1},
+            'OLQ-0003': {'神社': 1},
+        })
+
     def test_questiondata(self):
         source = OpenLiveQ.QuestionData()
         source.read('./sample_questiondata.tsv', 1)

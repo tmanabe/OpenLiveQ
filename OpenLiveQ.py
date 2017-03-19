@@ -151,6 +151,16 @@ class Query(dict):
                 file.write(Query.linebreak)
         return self
 
+    def tokenize(self):
+        from BM25F.ja import PosFilter
+        from BM25F.ja import StemFilter
+        from BM25F.ja import Tokenizer
+        from BM25F.exp import bag_of_words
+        result, tokenizer = {}, Tokenizer(StemFilter(), PosFilter())
+        for qid, q in self.items():
+            result[qid] = bag_of_words().read(tokenizer, q)
+        return result
+
 
 class QuestionData(dict):
     keys = [
