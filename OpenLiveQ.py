@@ -120,11 +120,11 @@ class ClickThrough(dict):
                 for key in ClickThrough.keys[4:]:
                     v = float(d[key]) * float(d['ctr'])
                     if 0 < v:
-                        if v < 0.25:
+                        if v <= 0.25:
                             v = 1
-                        elif v < 0.5:
+                        elif v <= 0.5:
                             v = 2
-                        elif v < 0.75:
+                        elif v <= 0.75:
                             v = 3
                         else:
                             v = 4

@@ -2,7 +2,6 @@
 # coding: utf-8
 
 from BM25F.exp import bag_jag
-import json
 import OpenLiveQ
 import tempfile
 import unittest
