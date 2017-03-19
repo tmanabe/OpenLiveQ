@@ -14,7 +14,7 @@ class TestOpenLiveQ(unittest.TestCase):
         source = OpenLiveQ.ClickThrough()
         source.read('./sample_clickthrough.tsv', 1)
         self.assertEqual(source, {
-            '2345': {
+            'OLQ-2345': {
                 'q90123456789': dict(zip(OpenLiveQ.ClickThrough.keys, [
                     'OLQ-2345',
                     'q90123456789',
@@ -52,7 +52,7 @@ class TestOpenLiveQ(unittest.TestCase):
     def test_clickthrough_to_relevance(self):
         source = OpenLiveQ.ClickThrough()
         source.read('./sample_clickthrough.tsv', 1)
-        qid, did = '2345', 'q90123456789'
+        qid, did = 'OLQ-2345', 'q90123456789'
         expect = {
             qid: {
                 '1': {did: 1},
@@ -62,7 +62,6 @@ class TestOpenLiveQ(unittest.TestCase):
             },
         }
         actual = source.to_relevance()
-        print(actual)
         self.assertEqual(expect, actual)
 
     def test_query(self):
@@ -78,7 +77,7 @@ class TestOpenLiveQ(unittest.TestCase):
         source = OpenLiveQ.QuestionData()
         source.read('./sample_questiondata.tsv', 1)
         self.assertEqual(source, {
-            '2345': [
+            'OLQ-2345': [
                 dict(zip(OpenLiveQ.QuestionData.keys, [
                     'OLQ-2345',
                     '123',
@@ -100,7 +99,7 @@ class TestOpenLiveQ(unittest.TestCase):
         source = OpenLiveQ.QuestionData()
         source.read('./sample_questiondata.tsv', 1)
         self.assertEqual(source.format(), {
-            '2345': [
+            'OLQ-2345': [
                 {
                     '~rank': 123,
                     '_question_id': 'q90123456789',
@@ -121,7 +120,7 @@ class TestOpenLiveQ(unittest.TestCase):
         source = OpenLiveQ.QuestionData()
         source.read('./sample_questiondata.tsv', 1)
         d = tempfile.TemporaryDirectory()
-        p = '%s/2345.txt' % d.name
+        p = '%s/OLQ-2345.txt' % d.name
         source.write_bag_jags(d.name)
         expect = bag_jag().read('./sample_serialized_bag_jag.txt')
         actual = bag_jag().read(p)

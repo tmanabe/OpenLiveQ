@@ -3,9 +3,10 @@
 
 from datetime import date
 import os
+import re
 
 
-def p(tpl):
+def serialize_bag_jag(tpl):
     from BM25F.exp import bag_dict
     from BM25F.exp import bag_jag
     import BM25F.ja
@@ -106,7 +107,7 @@ class ClickThrough(dict):
                 except IndexError:
                     stderr.write('%s: IndexError at line %i\n' % (head, count))
                     continue
-                self[d['query_id'].lstrip('OLQ-0')][d['question_id']] = d
+                self[d['query_id']][d['question_id']] = d
         if expected_count is not None:
             assert count == expected_count
         return self
@@ -115,7 +116,6 @@ class ClickThrough(dict):
         from TREC import Relevance
         result = Relevance()
         for qid, remainder in self.items():
-            qid = str(int(qid.split('-')[-1]))
             for did, d in remainder.items():
                 for key in ClickThrough.keys[4:]:
                     v = float(d[key]) * float(d['ctr'])
@@ -141,7 +141,7 @@ class Query(dict):
             for line in file:
                 query_id, query = line.split(Query.separator, 1)
                 query = query.rstrip()
-                self[query_id.lstrip('OLQ-0')] = query
+                self[query_id] = query
         return self
 
     def write(self, path):
@@ -212,7 +212,7 @@ class QuestionData(dict):
                 except IndexError:
                     stderr.write('%s: IndexError at line %i\n' % (head, count))
                     continue
-                self[d['query_id'].lstrip('OLQ-0')].append(d)
+                self[d['query_id']].append(d)
         if expected_count is not None:
             assert count == expected_count
         return self
@@ -222,7 +222,7 @@ class QuestionData(dict):
         dir_path = dir_path.rstrip(os.path.sep)
         self.format()
         buffer = [pair + (dir_path,) for pair in self.items()]
-        mp.Pool(mp.cpu_count() - 1).map(p, buffer)
+        mp.Pool(mp.cpu_count() - 1).map(serialize_bag_jag, buffer)
 
 
 class Run(dict):
@@ -234,11 +234,19 @@ class Run(dict):
         return self[query_id]
 
     def read(self, path):
+        def r(line):
+            line = re.sub(r'\r?\n$', '', line)
+            query_id, document_id = line.split(Run.separator, 1)
+            self[query_id].append(document_id)
         with open(path, 'r') as file:
-            for line in file:
-                query_id, document_id = line.split(Run.separator, 1)
-                document_id = document_id.rstrip()
-                self[query_id.lstrip('OLQ-0')].append(document_id)
+            first_line = file.readline()
+            if re.match(r'OLQ-\d+\s+q\d+\r?\n', first_line):  # No description
+                r(first_line)
+            else:  # Skip description
+                print(first_line)
+                pass
+            for line in file.readlines():
+                r(line)
         return self
 
     def write(self, path):
